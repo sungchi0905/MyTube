@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "693032089079",
+    "project_id": "mytube-3da5b"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:693032089079:android:d87c27da9ff03b74",
+        "android_client_info": {
+          "package_name": "com.example.sungchi.mytube"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "693032089079-v7vm7it17u3e9vktn03vfc97gsftk3l2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sungchi.mytube",
+            "certificate_hash": "673866802D3D5F30E57FE36A42DF5601D49E79EE"
+          }
+        },
+        {
+          "client_id": "693032089079-6aj5sfo8bnkepjiv6rms6fv3n1a8n4lq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcjL-u-u2AfyU0LnBTnyE4nEnd-6E6IqA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
