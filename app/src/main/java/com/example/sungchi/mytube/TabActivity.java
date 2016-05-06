@@ -1,61 +1,66 @@
 package com.example.sungchi.mytube;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TabActivity extends AppCompatActivity  {
+public class TabActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    Toolbar toolbar;
-    TabLayout tabLayout;
-    ViewPager viewPager;
-    LoginActivity mLoginActivity = new LoginActivity();
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
-        initInstancesDrawer();
 
-    }
+        // [START configure_signin]
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        // [END configure_signin]
 
-    private void initInstancesDrawer() {
+        // [START build_client]
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        // [END build_client]
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.tabanim_toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-       // getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.tabanim_viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabanim_tabs);
         tabLayout.setupWithViewPager(viewPager);
-        // tabLayout.addTab(tabLayout.newTab().setText("Search"));
-        // tabLayout.addTab(tabLayout.newTab().setText("Play Lists"));
+
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -68,7 +73,6 @@ public class TabActivity extends AppCompatActivity  {
                         break;
                     case 1:
                         showToast("Playlists");
-
                         break;
                 }
             }
@@ -83,47 +87,39 @@ public class TabActivity extends AppCompatActivity  {
 
             }
         });
-
     }
+
     void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //MenuInflater inflater = getMenuInflater();
-        //inflater.inflate(R.menu.menu_tab, menu);
-        //return true;
-        getMenuInflater().inflate(R.menu.menu_tab, menu);
-        return true;
-    }
-    //The log out button doesnt work.
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d("onOptionsItemSelected","yes");
-        switch (item.getItemId()) {
-            case R.id.action_logout:
-                //mLoginActivity.signOut();
-                Toast.makeText(getApplicationContext(), "logout!",Toast.LENGTH_SHORT).show();
-                Intent logoutIntent = new Intent(this, LoginActivity.class);
-                startActivity(logoutIntent);
-                return true;
 
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
-    private void setupViewPager(ViewPager viewPager){
+    private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new SearchFragment(), "Search");
-        adapter.addFragment(new PlaylistsFragment(), "Playlists");
+        adapter.addFrag(new SearchFragment(),"Search");
+        adapter.addFrag(new PlaylistsFragment(), "Playlists");
         viewPager.setAdapter(adapter);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_tab, menu);
+        return true;
+    }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_logout:
+                signOut();
+                Intent logoutIntent = new Intent(TabActivity.this, LoginActivity.class);
+                startActivity(logoutIntent);
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    static class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -141,7 +137,7 @@ public class TabActivity extends AppCompatActivity  {
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        public void addFrag(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
@@ -150,8 +146,62 @@ public class TabActivity extends AppCompatActivity  {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
-
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+        if (opr.isDone()) {
+            GoogleSignInResult result = opr.get();
+            handleSignInResult(result);
+        } else {
+            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(GoogleSignInResult googleSignInResult) {
+                    handleSignInResult(googleSignInResult);
+                }
+            });
+        }
+    }
+    // [START onActivityResult]
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    // [END onActivityResult]
+
+    // [START handleSignInResult]
+    private void handleSignInResult(GoogleSignInResult result) {
+       // Log.d(TAG, "handleSignInResult:" + result.isSuccess());
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+            //mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
+            //updateUI(true);
+
+        } else {
+            // Signed out, show unauthenticated UI.
+            //updateUI(false);
+        }
+    }
+    // [END handleSignInResult]
+
+
+    // [START signOut]
+    public void signOut() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                    }
+                });
+    }
+    // [END signOut]
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 
 }

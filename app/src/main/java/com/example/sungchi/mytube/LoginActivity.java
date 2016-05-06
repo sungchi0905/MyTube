@@ -29,7 +29,6 @@ import com.google.android.gms.common.api.Status;
         private static final int RC_SIGN_IN = 9002;
 
         private GoogleApiClient mGoogleApiClient;
-        private TextView mStatusTextView;
         private ProgressDialog mProgressDialog;
 
         @Override
@@ -37,12 +36,8 @@ import com.google.android.gms.common.api.Status;
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_login);
 
-            // Views
-            mStatusTextView = (TextView) findViewById(R.id.status);
-
             // Button listeners
             findViewById(R.id.sign_in_button).setOnClickListener(this);
-            findViewById(R.id.sign_out_button).setOnClickListener(this);
 
             // [START configure_signin]
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -109,14 +104,11 @@ import com.google.android.gms.common.api.Status;
             if (result.isSuccess()) {
                 // Signed in successfully, show authenticated UI.
                 GoogleSignInAccount acct = result.getSignInAccount();
-                mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
-                updateUI(true);
-
+                // Starts TabActivity
                 Intent loginIntent = new Intent(LoginActivity.this, TabActivity.class);
                 startActivity(loginIntent);
             } else {
-                // Signed out, show unauthenticated UI.
-                updateUI(false);
+
             }
         }
         // [END handleSignInResult]
@@ -134,9 +126,7 @@ import com.google.android.gms.common.api.Status;
                     new ResultCallback<Status>() {
                         @Override
                         public void onResult(Status status) {
-                            // [START_EXCLUDE]
-                            updateUI(false);
-                            // [END_EXCLUDE]
+
                         }
                     });
         }
@@ -147,9 +137,7 @@ import com.google.android.gms.common.api.Status;
                     new ResultCallback<Status>() {
                         @Override
                         public void onResult(Status status) {
-                            // [START_EXCLUDE]
-                            updateUI(false);
-                            // [END_EXCLUDE]
+
                         }
                     });
         }
@@ -176,34 +164,12 @@ import com.google.android.gms.common.api.Status;
             }
         }
 
-        private void updateUI(boolean signedIn) {
-            if (signedIn) {
-                findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-                findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
-            } else {
-                mStatusTextView.setText(R.string.signed_out);
-
-                findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-                findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
-            }
-        }
-
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.sign_in_button:
                     signIn();
                     break;
-                case R.id.sign_out_button:
-                    signOut();
-                    break;
-                case R.id.disconnect_button:
-                    revokeAccess();
-                    break;
             }
-        }
-
-        public void signOutFromOtherView(){
-            signOut();
         }
     }
