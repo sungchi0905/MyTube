@@ -26,7 +26,7 @@ import com.google.android.gms.common.api.Status;
     public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener {
 
         private static final String TAG = "SignInActivity";
-        private static final int RC_SIGN_IN = 9001;
+        private static final int RC_SIGN_IN = 9002;
 
         private GoogleApiClient mGoogleApiClient;
         private TextView mStatusTextView;
@@ -111,6 +111,9 @@ import com.google.android.gms.common.api.Status;
                 GoogleSignInAccount acct = result.getSignInAccount();
                 mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
                 updateUI(true);
+
+                Intent loginIntent = new Intent(LoginActivity.this, TabActivity.class);
+                startActivity(loginIntent);
             } else {
                 // Signed out, show unauthenticated UI.
                 updateUI(false);
@@ -126,7 +129,7 @@ import com.google.android.gms.common.api.Status;
         // [END signIn]
 
         // [START signOut]
-        private void signOut() {
+        public void signOut() {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override
@@ -138,6 +141,19 @@ import com.google.android.gms.common.api.Status;
                     });
         }
         // [END signOut]
+        // [START revokeAccess]
+        private void revokeAccess() {
+            Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            // [START_EXCLUDE]
+                            updateUI(false);
+                            // [END_EXCLUDE]
+                        }
+                    });
+        }
+    // [END revokeAccess]
 
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -163,12 +179,12 @@ import com.google.android.gms.common.api.Status;
         private void updateUI(boolean signedIn) {
             if (signedIn) {
                 findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-                findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
+                findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
             } else {
                 mStatusTextView.setText(R.string.signed_out);
 
                 findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-                findViewById(R.id.sign_out_button).setVisibility(View.GONE);
+                findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
             }
         }
 
@@ -181,6 +197,13 @@ import com.google.android.gms.common.api.Status;
                 case R.id.sign_out_button:
                     signOut();
                     break;
+                case R.id.disconnect_button:
+                    revokeAccess();
+                    break;
             }
+        }
+
+        public void signOutFromOtherView(){
+            signOut();
         }
     }
