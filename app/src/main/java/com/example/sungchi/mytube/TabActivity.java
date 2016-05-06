@@ -174,16 +174,12 @@ public class TabActivity extends AppCompatActivity implements GoogleApiClient.On
 
     // [START handleSignInResult]
     private void handleSignInResult(GoogleSignInResult result) {
-       // Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            //mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
-            //updateUI(true);
 
         } else {
             // Signed out, show unauthenticated UI.
-            //updateUI(false);
         }
     }
     // [END handleSignInResult]

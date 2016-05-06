@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -19,17 +18,12 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
-/**
-     * Activity to demonstrate basic retrieval of the Google user's ID, email address, and basic
-     * profile.
-     */
     public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener {
 
         private static final String TAG = "SignInActivity";
         private static final int RC_SIGN_IN = 9002;
 
         private GoogleApiClient mGoogleApiClient;
-        private ProgressDialog mProgressDialog;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -71,14 +65,9 @@ import com.google.android.gms.common.api.Status;
                 GoogleSignInResult result = opr.get();
                 handleSignInResult(result);
             } else {
-                // If the user has not previously signed in on this device or the sign-in has expired,
-                // this asynchronous branch will attempt to sign in the user silently.  Cross-device
-                // single sign-on will occur in this branch.
-                showProgressDialog();
                 opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                     @Override
                     public void onResult(GoogleSignInResult googleSignInResult) {
-                        hideProgressDialog();
                         handleSignInResult(googleSignInResult);
                     }
                 });
@@ -146,22 +135,6 @@ import com.google.android.gms.common.api.Status;
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
             Log.d(TAG, "onConnectionFailed:" + connectionResult);
-        }
-
-        private void showProgressDialog() {
-            if (mProgressDialog == null) {
-                mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setMessage(getString(R.string.loading));
-                mProgressDialog.setIndeterminate(true);
-            }
-
-            mProgressDialog.show();
-        }
-
-        private void hideProgressDialog() {
-            if (mProgressDialog != null && mProgressDialog.isShowing()) {
-                mProgressDialog.hide();
-            }
         }
 
         @Override
